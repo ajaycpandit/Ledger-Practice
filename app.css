@@ -1,0 +1,16 @@
+table.report-table th, table.report-table td {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+}
+table.report-table thead {
+    background-color: #f1f5f9;
+}
+table.report-table tbody tr:not(:last-child) {
+    border-bottom: 1px solid #e2e8f0;
+}
+.card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+}

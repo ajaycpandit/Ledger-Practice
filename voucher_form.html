@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}New Voucher — Ledger Practice{% endblock %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">New Voucher</h1>
+
+<form method="post" class="card space-y-5">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">Voucher Type</label>
+            <select name="voucher_type" id="voucher_type" required
+                    class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+                {% for vt in voucher_types %}
+                <option value="{{ vt }}">{{ vt }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">Date</label>
+            <input type="date" name="date" required
+                   class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">Narration</label>
+            <input type="text" name="narration"
+                   class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+    </div>
+
+    <div id="gst_fields" class="grid grid-cols-1 md:grid-cols-3 gap-3 hidden">
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">Party GSTIN</label>
+            <input type="text" name="party_gstin" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">HSN Code</label>
+            <input type="text" name="hsn_code" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">Taxable Value</label>
+            <input type="number" step="0.01" name="taxable_value" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">CGST %</label>
+            <input type="number" step="0.01" name="cgst_rate" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">SGST %</label>
+            <input type="number" step="0.01" name="sgst_rate" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">IGST %</label>
+            <input type="number" step="0.01" name="igst_rate" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="font-medium text-sm">Debit</h3>
+                <button type="button" onclick="addRow('debit')" class="text-xs text-blue-600 hover:underline">+ Add line</button>
+            </div>
+            <div id="debit_rows" class="space-y-2"></div>
+        </div>
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="font-medium text-sm">Credit</h3>
+                <button type="button" onclick="addRow('credit')" class="text-xs text-blue-600 hover:underline">+ Add line</button>
+            </div>
+            <div id="credit_rows" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <div class="text-sm text-slate-500">
+        Total Debit: <span id="total_debit">0.00</span> &nbsp;|&nbsp; Total Credit: <span id="total_credit">0.00</span>
+    </div>
+
+    <button type="submit" class="bg-slate-900 text-white rounded px-4 py-2 text-sm font-medium hover:bg-slate-800">
+        Save Voucher
+    </button>
+</form>
+
+<script>
+const ledgers = [
+    {% for l in ledgers %}
+    { id: {{ l.id }}, name: {{ l.name | tojson }} },
+    {% endfor %}
+];
+
+function ledgerOptions() {
+    return ledgers.map(l => `<option value="${l.id}">${l.name}</option>`).join("");
+}
+
+function addRow(side) {
+    const container = document.getElementById(side + "_rows");
+    const row = document.createElement("div");
+    row.className = "flex gap-2";
+    row.innerHTML = `
+        <select name="${side}_ledger_id" required class="flex-1 border border-slate-300 rounded px-2 py-1.5 text-sm">
+            <option value="">Select ledger</option>
+            ${ledgerOptions()}
+        </select>
+        <input type="number" step="0.01" name="${side}_amount" required placeholder="Amount"
+               oninput="recalc()" class="w-32 border border-slate-300 rounded px-2 py-1.5 text-sm">
+        <button type="button" onclick="this.parentElement.remove(); recalc();" class="text-xs text-red-500">✕</button>
+    `;
+    container.appendChild(row);
+}
+
+function recalc() {
+    const sum = (side) => {
+        let total = 0;
+        document.querySelectorAll(`input[name="${side}_amount"]`).forEach(i => {
+            total += parseFloat(i.value) || 0;
+        });
+        return total;
+    };
+    document.getElementById("total_debit").textContent = sum("debit").toFixed(2);
+    document.getElementById("total_credit").textContent = sum("credit").toFixed(2);
+}
+
+document.getElementById("voucher_type").addEventListener("change", (e) => {
+    const gstFields = document.getElementById("gst_fields");
+    if (e.target.value === "Sales" || e.target.value === "Purchase") {
+        gstFields.classList.remove("hidden");
+    } else {
+        gstFields.classList.add("hidden");
+    }
+});
+
+// Start with one row each side
+addRow("debit");
+addRow("credit");
+document.querySelectorAll('input[type=number]').forEach(i => i.addEventListener('input', recalc));
+</script>
+{% endblock %}

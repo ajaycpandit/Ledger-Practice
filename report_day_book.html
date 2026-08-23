@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Day Book — Ledger Practice{% endblock %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">Day Book</h1>
+
+<form method="get" class="mb-4 flex items-center gap-2 text-sm">
+    <label class="text-slate-600">As of:</label>
+    <input type="date" name="as_of" value="{{ as_of.isoformat() if as_of else '' }}"
+           class="border border-slate-300 rounded px-2 py-1">
+    <button type="submit" class="bg-slate-900 text-white rounded px-3 py-1">Apply</button>
+</form>
+
+<div class="card">
+    {% for v in vouchers %}
+    <div class="mb-4 pb-4 {{ '' if loop.last else 'border-b border-slate-200' }}">
+        <div class="text-sm text-slate-500">{{ v.date.strftime('%d-%b-%Y') }} &middot; {{ v.voucher_type }}</div>
+        <div class="text-sm mb-1">{{ v.narration }}</div>
+        <table class="w-full text-sm">
+        {% for e in v.entries %}
+            <tr>
+                <td class="w-1/2 {{ 'pl-4' if e.entry_type == 'credit' else '' }}">
+                    {{ ("To " if e.entry_type == 'credit' else "Dr. ") }}{{ e.ledger.name }}
+                </td>
+                <td class="text-right">{{ "%.2f"|format(e.amount) if e.entry_type == 'debit' else '' }}</td>
+                <td class="text-right">{{ "%.2f"|format(e.amount) if e.entry_type == 'credit' else '' }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <p class="text-slate-500 text-sm">No vouchers yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}
