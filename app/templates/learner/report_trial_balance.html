@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Trial Balance — Ledger Practice{% endblock %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">Trial Balance</h1>
+
+<form method="get" class="mb-4 flex items-center gap-2 text-sm">
+    <label class="text-slate-600">As of:</label>
+    <input type="date" name="as_of" value="{{ as_of.isoformat() if as_of else '' }}"
+           class="border border-slate-300 rounded px-2 py-1">
+    <button type="submit" class="bg-slate-900 text-white rounded px-3 py-1">Apply</button>
+</form>
+
+<div class="card">
+    <table class="w-full report-table text-sm">
+        <thead><tr><th>Ledger</th><th>Group</th><th class="text-right">Debit</th><th class="text-right">Credit</th></tr></thead>
+        <tbody>
+        {% for row in tb.rows %}
+            <tr>
+                <td>{{ row.ledger.name }}</td>
+                <td>{{ row.ledger.group }}</td>
+                <td class="text-right">{{ "%.2f"|format(row.balance) if row.side == 'debit' else '' }}</td>
+                <td class="text-right">{{ "%.2f"|format(row.balance) if row.side == 'credit' else '' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="font-semibold border-t-2 border-slate-400">
+                <td colspan="2">Total</td>
+                <td class="text-right">{{ "%.2f"|format(tb.total_debit) }}</td>
+                <td class="text-right">{{ "%.2f"|format(tb.total_credit) }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="mt-3 text-sm {{ 'text-green-700' if tb.balanced else 'text-red-700' }}">
+    {{ "Balanced." if tb.balanced else "Not balanced — debit and credit totals differ." }}
+</div>
+{% endblock %}

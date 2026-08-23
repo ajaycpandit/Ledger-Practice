@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}New Packet — Ledger Practice{% endblock %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">New Packet for {{ learner.name }}</h1>
+
+<form method="post" class="card space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">Month label</label>
+            <input type="text" name="month_label" placeholder="e.g. August 2026" required
+                   class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm text-slate-600 mb-1">Due date</label>
+            <input type="date" name="due_date" required
+                   class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+    </div>
+    <div>
+        <label class="block text-sm text-slate-600 mb-1">Title</label>
+        <input type="text" name="title" placeholder="e.g. Record August transactions and close books" required
+               class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+    </div>
+    <div>
+        <label class="block text-sm text-slate-600 mb-1">Instructions (HTML allowed — e.g. &lt;p&gt;, &lt;ul&gt;, &lt;table&gt;)</label>
+        <textarea name="instructions_html" rows="10" required
+                  class="w-full border border-slate-300 rounded px-3 py-2 text-sm font-mono"
+                  placeholder="&lt;p&gt;Record the following transactions...&lt;/p&gt;"></textarea>
+    </div>
+    <div>
+        <label class="block text-sm text-slate-600 mb-1">
+            Expected answer (hidden from learner until you enable it on the review page)
+        </label>
+        <textarea name="expected_answer_html" rows="8"
+                  class="w-full border border-slate-300 rounded px-3 py-2 text-sm font-mono"
+                  placeholder="&lt;p&gt;Trial balance total: 1,25,000...&lt;/p&gt;"></textarea>
+    </div>
+    <button type="submit" class="bg-slate-900 text-white rounded px-4 py-2 text-sm font-medium hover:bg-slate-800">
+        Create Packet
+    </button>
+</form>
+{% endblock %}

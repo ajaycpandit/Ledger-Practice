@@ -1,0 +1,30 @@
+databases:
+  - name: ledger-practice-db
+    plan: free
+    databaseName: ledger_practice
+    user: ledger_practice
+
+services:
+  - type: web
+    name: ledger-practice
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    # Runs on every deploy: creates tables if missing, then creates the
+    # admin user if ADMIN_NAME/ADMIN_PASSWORD are set and it doesn't
+    # already exist. Safe to re-run.
+    preDeployCommand: "flask init-db && flask create-admin"
+    startCommand: "gunicorn run:app"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_APP
+        value: run.py
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ledger-practice-db
+          property: connectionString
+      - key: ADMIN_NAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Profit & Loss — Ledger Practice{% endblock %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">Profit &amp; Loss Account</h1>
+
+<form method="get" class="mb-4 flex items-center gap-2 text-sm">
+    <label class="text-slate-600">As of:</label>
+    <input type="date" name="as_of" value="{{ as_of.isoformat() if as_of else '' }}"
+           class="border border-slate-300 rounded px-2 py-1">
+    <button type="submit" class="bg-slate-900 text-white rounded px-3 py-1">Apply</button>
+</form>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="card">
+        <h2 class="font-medium mb-2">Expenses</h2>
+        <table class="w-full report-table text-sm">
+            <tbody>
+            {% for row in pnl.expense_rows %}
+                <tr><td>{{ row.ledger.name }}</td><td class="text-right">{{ "%.2f"|format(row.balance) }}</td></tr>
+            {% endfor %}
+            <tr class="font-semibold border-t border-slate-400">
+                <td>Net Profit c/o</td><td class="text-right">{{ "%.2f"|format(pnl.net_profit) if pnl.net_profit > 0 else '' }}</td>
+            </tr>
+            </tbody>
+            <tfoot>
+                <tr class="font-semibold border-t-2 border-slate-400">
+                    <td>Total</td>
+                    <td class="text-right">{{ "%.2f"|format(pnl.total_expense + (pnl.net_profit if pnl.net_profit > 0 else 0)) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="card">
+        <h2 class="font-medium mb-2">Income</h2>
+        <table class="w-full report-table text-sm">
+            <tbody>
+            {% for row in pnl.income_rows %}
+                <tr><td>{{ row.ledger.name }}</td><td class="text-right">{{ "%.2f"|format(row.balance) }}</td></tr>
+            {% endfor %}
+            <tr class="font-semibold border-t border-slate-400">
+                <td>Net Loss c/o</td><td class="text-right">{{ "%.2f"|format(-pnl.net_profit) if pnl.net_profit < 0 else '' }}</td>
+            </tr>
+            </tbody>
+            <tfoot>
+                <tr class="font-semibold border-t-2 border-slate-400">
+                    <td>Total</td>
+                    <td class="text-right">{{ "%.2f"|format(pnl.total_income + (-pnl.net_profit if pnl.net_profit < 0 else 0)) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div class="mt-3 text-sm font-medium">
+    {% if pnl.net_profit >= 0 %}
+        Net Profit: {{ "%.2f"|format(pnl.net_profit) }}
+    {% else %}
+        Net Loss: {{ "%.2f"|format(-pnl.net_profit) }}
+    {% endif %}
+</div>
+{% endblock %}
