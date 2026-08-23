@@ -28,15 +28,49 @@ Then visit http://localhost:5000, log in as admin, and create a
 learner from the dashboard (this also provisions their company/books
 automatically).
 
-## Deploying
+## Deploying on Render
+
+This repo includes a `render.yaml` blueprint that provisions a free
+Postgres database and a web service together.
+
+**Important:** don't use the default SQLite file in production on
+Render — its filesystem is ephemeral, so a redeploy can wipe the
+learner's books. Use the included Postgres database instead (the
+blueprint wires this up automatically via `DATABASE_URL`).
+
+1. Push this repo to GitHub.
+2. In Render, choose **New > Blueprint** and point it at the repo.
+   Render will read `render.yaml` and create both the web service and
+   the database.
+3. Before the first deploy, set two environment variables on the web
+   service (Render will prompt for these since they're marked
+   `sync: false` in the blueprint): `ADMIN_NAME` and `ADMIN_PASSWORD`
+   — this becomes your admin login. You can remove these env vars
+   after the first successful deploy if you'd rather not leave the
+   password sitting in Render's dashboard.
+4. Deploy. The blueprint's `preDeployCommand` runs `flask init-db`
+   (creates tables) and `flask create-admin` (creates your admin user
+   from the env vars, or skips it if that user already exists) on
+   every deploy — safe to leave in place long-term.
+5. Log in at your Render URL with the admin name/password you set,
+   and create the learner from the dashboard as usual.
+
+If your Render plan doesn't support `preDeployCommand`, run the same
+two commands once from Render's **Shell** tab instead:
+```bash
+flask init-db
+flask create-admin
+```
+
+## Deploying elsewhere
 
 This is a standard Flask app — deployable to any host that runs
-Python (Render, Railway, PythonAnywhere, a VPS with gunicorn +
-nginx, etc.). For production:
+Python (Railway, PythonAnywhere, a VPS with gunicorn + nginx, etc.).
+For production generally:
 
 - Set a real `SECRET_KEY` env var
-- Set `DATABASE_URL` if you're not using the default local SQLite file
-  (e.g. Postgres in production)
+- Set `DATABASE_URL` to a real database (Postgres, not SQLite) if the
+  host's filesystem isn't persistent
 - Run via `gunicorn run:app` behind a reverse proxy instead of the
   Flask dev server
 
