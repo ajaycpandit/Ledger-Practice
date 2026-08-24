@@ -48,15 +48,17 @@ blueprint wires this up automatically via `DATABASE_URL`).
    — this becomes your admin login. You can remove these env vars
    after the first successful deploy if you'd rather not leave the
    password sitting in Render's dashboard.
-4. Deploy. The blueprint's `preDeployCommand` runs `flask init-db`
+4. Deploy. The blueprint's `buildCommand` runs `flask init-db`
    (creates tables) and `flask create-admin` (creates your admin user
-   from the env vars, or skips it if that user already exists) on
-   every deploy — safe to leave in place long-term.
+   from the env vars, or skips it if that user already exists) as
+   part of every build — safe to leave in place long-term. (Render's
+   free tier doesn't support the separate `preDeployCommand` step, so
+   these run at build time instead.)
 5. Log in at your Render URL with the admin name/password you set,
    and create the learner from the dashboard as usual.
 
-If your Render plan doesn't support `preDeployCommand`, run the same
-two commands once from Render's **Shell** tab instead:
+If you'd rather not run these on every build, you can instead run
+them once from Render's **Shell** tab (only available on paid plans):
 ```bash
 flask init-db
 flask create-admin

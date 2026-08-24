@@ -9,11 +9,7 @@ services:
     name: ledger-practice
     runtime: python
     plan: free
-    buildCommand: "pip install -r requirements.txt"
-    # Runs on every deploy: creates tables if missing, then creates the
-    # admin user if ADMIN_NAME/ADMIN_PASSWORD are set and it doesn't
-    # already exist. Safe to re-run.
-    preDeployCommand: "flask init-db && flask create-admin"
+    buildCommand: "pip install -r requirements.txt && flask init-db && flask create-admin"
     startCommand: "gunicorn run:app"
     envVars:
       - key: SECRET_KEY
